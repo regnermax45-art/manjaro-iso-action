@@ -83,6 +83,30 @@ inputs:
   s3-cfg:
     description: 'S3 config'
     required: false
+  maxregneros-ui-enabled:
+    description: 'Enable maxregnerOS glassy mobile UI features throughout the system'
+    required: false
+    default: "false"
+  maxregneros-ui-theme:
+    description: 'MaxregnerOS UI theme variant (glassy, crystal, aurora, neon)'
+    required: false
+    default: "glassy"
+  maxregneros-mobile-optimization:
+    description: 'Enable mobile-first optimizations and touch interfaces'
+    required: false
+    default: "true"
+  maxregneros-responsive-layout:
+    description: 'Enable responsive layout system for different screen sizes'
+    required: false
+    default: "true"
+  maxregneros-gesture-support:
+    description: 'Enable advanced gesture recognition and touch navigation'
+    required: false
+    default: "true"
+  maxregneros-glassy-effects:
+    description: 'Enable glassy transparency and visual effects throughout UI'
+    required: false
+    default: "true"
 
 outputs:
   file-path:
@@ -240,6 +264,104 @@ runs:
         sudo rm -rf /opt/ghc
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+    - id: maxregneros-ui-setup
+      shell: bash
+      env:
+        MAXREGNEROS_UI_ENABLED: ${{ inputs.maxregneros-ui-enabled }}
+        MAXREGNEROS_UI_THEME: ${{ inputs.maxregneros-ui-theme }}
+        MAXREGNEROS_MOBILE_OPTIMIZATION: ${{ inputs.maxregneros-mobile-optimization }}
+        MAXREGNEROS_RESPONSIVE_LAYOUT: ${{ inputs.maxregneros-responsive-layout }}
+        MAXREGNEROS_GESTURE_SUPPORT: ${{ inputs.maxregneros-gesture-support }}
+        MAXREGNEROS_GLASSY_EFFECTS: ${{ inputs.maxregneros-glassy-effects }}
+      run: |
+        if [ "$MAXREGNEROS_UI_ENABLED" == "true" ]; then
+          echo "## Setting up MaxregnerOS UI glassy mobile features"
+          
+          # Create MaxregnerOS UI configuration directory
+          sudo mkdir -p /etc/maxregneros-ui
+          sudo mkdir -p /usr/share/maxregneros-ui/themes
+          sudo mkdir -p /usr/share/maxregneros-ui/configs
+          
+          # Create main UI configuration
+          printf '# MaxregnerOS UI Configuration\nUI_THEME=%s\nMOBILE_OPTIMIZATION=%s\nRESPONSIVE_LAYOUT=%s\nGESTURE_SUPPORT=%s\nGLASSY_EFFECTS=%s\nTRANSPARENCY=true\nBLUR_EFFECTS=true\nCORNER_RADIUS=12\nSHADOW_DEPTH=4\nANIMATION_SPEED=fast\nGLASSY_OPACITY=0.85\nBLUR_RADIUS=15\nFADE_DURATION=300\n' \
+            "${MAXREGNEROS_UI_THEME}" \
+            "${MAXREGNEROS_MOBILE_OPTIMIZATION}" \
+            "${MAXREGNEROS_RESPONSIVE_LAYOUT}" \
+            "${MAXREGNEROS_GESTURE_SUPPORT}" \
+            "${MAXREGNEROS_GLASSY_EFFECTS}" | sudo tee /etc/maxregneros-ui/config.conf > /dev/null
+          
+          # Create glassy theme configuration
+          {
+            echo "# Glassy Theme Configuration"
+            echo "[Theme]"
+            echo "name=MaxregnerOS Glassy"
+            echo "description=Revolutionary glassy mobile-first UI theme"
+            echo "version=1.0.0"
+            echo ""
+            echo "[Visual_Effects]"
+            echo "transparency=true"
+            echo "blur_effects=true"
+            echo "corner_radius=12"
+            echo "shadow_depth=4"
+            echo "glassy_opacity=0.85"
+            echo "blur_radius=15"
+            echo "fade_duration=300"
+            echo ""
+            echo "[Colors]"
+            echo "primary=#2196F3"
+            echo "secondary=#03DAC6"
+            echo "surface=rgba(255,255,255,0.85)"
+            echo "background=rgba(0,0,0,0.1)"
+            echo "on_surface=#000000"
+            echo "on_background=#FFFFFF"
+            echo ""
+            echo "[Mobile]"
+            echo "touch_interface=true"
+            echo "minimum_touch_target=44px"
+            echo "gesture_navigation=true"
+            echo "adaptive_layouts=true"
+          } | sudo tee /usr/share/maxregneros-ui/themes/glassy.conf > /dev/null
+          
+          # Create gesture configuration
+          {
+            echo "# MaxregnerOS Gesture Configuration"
+            echo "[Global_Settings]"
+            echo "gesture_engine=touchegg"
+            echo "sensitivity=medium"
+            echo "animation_speed=fast"
+            echo "haptic_feedback=true"
+            echo ""
+            echo "[Three_Finger_Gestures]"
+            echo "swipe_up=show_desktop"
+            echo "swipe_down=show_desktop"
+            echo "swipe_left=next_workspace"
+            echo "swipe_right=previous_workspace"
+            echo ""
+            echo "[Four_Finger_Gestures]"
+            echo "swipe_up=show_activities"
+            echo "swipe_down=show_applications"
+            echo "swipe_left=switch_application_next"
+            echo "swipe_right=switch_application_previous"
+            echo ""
+            echo "[Two_Finger_Gestures]"
+            echo "pinch_in=zoom_out"
+            echo "pinch_out=zoom_in"
+            echo "scroll_up=scroll_up"
+            echo "scroll_down=scroll_down"
+          } | sudo tee /usr/share/maxregneros-ui/configs/gestures.conf > /dev/null
+          
+          # Create mobile optimization script
+          sudo mkdir -p /usr/share/maxregneros-ui
+          sudo cp scripts/mobile-setup.sh /usr/share/maxregneros-ui/
+          sudo chmod +x /usr/share/maxregneros-ui/mobile-setup.sh
+          
+          echo "## MaxregnerOS UI configuration created successfully"
+          echo "Theme: ${MAXREGNEROS_UI_THEME}"
+          echo "Mobile Optimization: ${MAXREGNEROS_MOBILE_OPTIMIZATION}"
+          echo "Glassy Effects: ${MAXREGNEROS_GLASSY_EFFECTS}"
+        else
+          echo "## MaxregnerOS UI features disabled, skipping setup"
+        fi
     - id: image-build
       shell: bash
       env:
