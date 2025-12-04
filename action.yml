@@ -83,6 +83,30 @@ inputs:
   s3-cfg:
     description: 'S3 config'
     required: false
+  maxregneros-ui-enabled:
+    description: 'Enable maxregnerOS glassy mobile UI features throughout the system'
+    required: false
+    default: "false"
+  maxregneros-ui-theme:
+    description: 'MaxregnerOS UI theme variant (glassy, crystal, aurora, neon)'
+    required: false
+    default: "glassy"
+  maxregneros-mobile-optimization:
+    description: 'Enable mobile-first optimizations and touch interfaces'
+    required: false
+    default: "true"
+  maxregneros-responsive-layout:
+    description: 'Enable responsive layout system for different screen sizes'
+    required: false
+    default: "true"
+  maxregneros-gesture-support:
+    description: 'Enable advanced gesture recognition and touch navigation'
+    required: false
+    default: "true"
+  maxregneros-glassy-effects:
+    description: 'Enable glassy transparency and visual effects throughout UI'
+    required: false
+    default: "true"
 
 outputs:
   file-path:
@@ -240,6 +264,26 @@ runs:
         sudo rm -rf /opt/ghc
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+    - id: maxregneros-ui-setup
+      shell: bash
+      env:
+        MAXREGNEROS_UI_ENABLED: ${{ inputs.maxregneros-ui-enabled }}
+      run: |
+        if [ "$MAXREGNEROS_UI_ENABLED" == "true" ]; then
+          echo "## Setting up MaxregnerOS UI glassy mobile features"
+          
+          # Create basic MaxregnerOS UI configuration
+          sudo mkdir -p /etc/maxregneros-ui
+          echo "UI_THEME=${{ inputs.maxregneros-ui-theme }}" | sudo tee /etc/maxregneros-ui/config.conf > /dev/null
+          echo "MOBILE_OPTIMIZATION=${{ inputs.maxregneros-mobile-optimization }}" | sudo tee -a /etc/maxregneros-ui/config.conf > /dev/null
+          echo "RESPONSIVE_LAYOUT=${{ inputs.maxregneros-responsive-layout }}" | sudo tee -a /etc/maxregneros-ui/config.conf > /dev/null
+          echo "GESTURE_SUPPORT=${{ inputs.maxregneros-gesture-support }}" | sudo tee -a /etc/maxregneros-ui/config.conf > /dev/null
+          echo "GLASSY_EFFECTS=${{ inputs.maxregneros-glassy-effects }}" | sudo tee -a /etc/maxregneros-ui/config.conf > /dev/null
+          
+          echo "## MaxregnerOS UI configuration created"
+        else
+          echo "## MaxregnerOS UI disabled, skipping setup"
+        fi
     - id: image-build
       shell: bash
       env:

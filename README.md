@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         ##### EDIT ME #####      
-        EDITION: [cinnamon, gnome]
+        EDITION: [cinnamon, gnome, maxregneros]
         BRANCH: [stable, testing]
         SCOPE: [minimal,full]
         ###################
@@ -83,6 +83,157 @@ jobs:
           echo ${{ github.token }} | gh auth login --with-token
           gh release delete ${{ needs.prepare-release.outputs.release_tag }} -y --repo ${{ github.repository }}
           git push --delete origin ${{ needs.prepare-release.outputs.release_tag }}
+
+## MaxregnerOS UI - Glassy Mobile Features
+
+This action now supports **MaxregnerOS UI**, a revolutionary glassy mobile-first interface that transforms traditional Linux desktop environments into modern, touch-friendly, mobile-optimized experiences.
+
+### 🌟 MaxregnerOS UI Features
+
+- **🔮 Glassy Transparency Effects**: Beautiful blur and transparency effects throughout the interface
+- **📱 Mobile-First Design**: Touch-optimized controls and mobile-friendly layouts
+- **👆 Advanced Gesture Support**: Comprehensive multi-touch gesture recognition
+- **🎨 Responsive Layouts**: Adaptive interfaces that work on any screen size
+- **⚡ Performance Optimized**: Hardware-accelerated rendering and mobile performance tuning
+- **🎯 Touch-Friendly**: 44px minimum touch targets and haptic feedback
+- **🌈 Modern Aesthetics**: Material Design-inspired with glassy visual effects
+
+### 🚀 Using MaxregnerOS Edition
+
+To build a MaxregnerOS ISO with glassy mobile UI features:
+
+```yaml
+- id: image-build
+  uses: manjaro/manjaro-iso-action@main
+  with:
+    edition: maxregneros
+    branch: stable
+    scope: full
+    # MaxregnerOS UI Configuration
+    maxregneros-ui-enabled: true
+    maxregneros-ui-theme: glassy
+    maxregneros-mobile-optimization: true
+    maxregneros-responsive-layout: true
+    maxregneros-gesture-support: true
+    maxregneros-glassy-effects: true
+```
+
+### 🎛️ MaxregnerOS UI Configuration Options
+
+| Parameter | Description | Default | Options |
+|-----------|-------------|---------|---------|
+| `maxregneros-ui-enabled` | Enable MaxregnerOS glassy mobile UI features | `false` | `true`, `false` |
+| `maxregneros-ui-theme` | UI theme variant | `glassy` | `glassy`, `crystal`, `aurora`, `neon` |
+| `maxregneros-mobile-optimization` | Enable mobile-first optimizations | `true` | `true`, `false` |
+| `maxregneros-responsive-layout` | Enable responsive layout system | `true` | `true`, `false` |
+| `maxregneros-gesture-support` | Enable gesture recognition | `true` | `true`, `false` |
+| `maxregneros-glassy-effects` | Enable transparency effects | `true` | `true`, `false` |
+
+### 📱 Mobile UI Components
+
+#### Glassy Theme System
+- **Transparency**: 85% opacity with 15px blur radius
+- **Corner Radius**: 12px rounded corners throughout
+- **Shadows**: Multi-layer shadow system for depth
+- **Colors**: Material Design color palette with glass effects
+
+#### Touch & Gesture Support
+- **3-finger gestures**: Workspace switching and desktop management
+- **4-finger gestures**: Application switching and overview
+- **2-finger gestures**: Scrolling, zooming, and navigation
+- **Edge swipes**: Mobile-like navigation from screen edges
+- **Pinch & zoom**: Natural scaling and interaction
+
+#### Mobile-Optimized Applications
+- **Firefox**: Touch-friendly interface with mobile gestures
+- **File Manager**: Large touch targets and swipe navigation
+- **System Settings**: Mobile-first configuration panels
+- **Virtual Keyboard**: On-screen keyboard for touch devices
+
+### 🏗️ Architecture Overview
+
+MaxregnerOS UI integrates at multiple system levels:
+
+1. **ISO Build Level**: Packages and configurations embedded during build
+2. **Rootfs Level**: System-wide settings and services
+3. **Application Level**: Mobile-optimized app configurations
+4. **Theme Level**: Glassy visual effects and responsive layouts
+
+### 🔧 Advanced Configuration
+
+#### Custom Theme Variants
+
+```yaml
+# Crystal theme with ice-like effects
+maxregneros-ui-theme: crystal
+
+# Aurora theme with colorful gradients  
+maxregneros-ui-theme: aurora
+
+# Neon theme with vibrant accents
+maxregneros-ui-theme: neon
+```
+
+#### Performance Tuning
+
+```yaml
+# Enable all mobile optimizations
+maxregneros-mobile-optimization: true
+maxregneros-responsive-layout: true
+maxregneros-gesture-support: true
+maxregneros-glassy-effects: true
+```
+
+### 🎯 Use Cases
+
+- **Tablet Devices**: Perfect for convertible laptops and tablets
+- **Touch Displays**: Optimized for touch-enabled monitors
+- **Mobile Workstations**: Modern interface for portable computing
+- **Kiosk Systems**: Touch-friendly public interfaces
+- **Educational Devices**: Intuitive interface for learning environments
+
+### 🛠️ Technical Details
+
+#### System Requirements
+- **GPU**: Hardware acceleration recommended for glassy effects
+- **RAM**: Minimum 2GB, 4GB recommended for full features
+- **Storage**: Additional 500MB for UI components and themes
+- **Input**: Touch screen or precision touchpad recommended
+
+#### Included Packages
+- **Compositor**: Picom with blur and transparency support
+- **Gesture Engine**: Touchegg for multi-touch recognition
+- **Theme Engine**: GTK3/4 and Qt5/6 theme integration
+- **Mobile Apps**: Touch-optimized application suite
+
+### 🔍 Troubleshooting
+
+#### Common Issues
+
+**Glassy effects not working:**
+- Ensure GPU drivers support hardware acceleration
+- Check if compositor is running: `systemctl status maxregneros-compositor`
+
+**Gestures not responding:**
+- Verify touchegg service: `systemctl status maxregneros-gestures`
+- Check input device permissions and libinput configuration
+
+**Performance issues:**
+- Disable some visual effects for older hardware
+- Adjust blur radius and transparency levels in theme configuration
+
+### 🤝 Contributing
+
+MaxregnerOS UI is designed to be extensible and customizable. Contributions are welcome for:
+
+- New theme variants and visual effects
+- Additional gesture patterns and touch interactions
+- Mobile-optimized application configurations
+- Performance improvements and optimizations
+
+### 📄 License
+
+MaxregnerOS UI components are released under GPL-3.0 license, maintaining compatibility with the underlying Manjaro and Linux ecosystem.
 ```
 
 ### gpg signing

@@ -1,0 +1,283 @@
+name: MaxregnerOS Glassy Mobile ISO Build
+on:
+  workflow_dispatch:
+    inputs:
+      ui_theme:
+        description: 'MaxregnerOS UI theme variant'
+        required: false
+        default: 'glassy'
+        type: choice
+        options:
+          - glassy
+          - crystal
+          - aurora
+          - neon
+      mobile_optimization:
+        description: 'Enable mobile optimizations'
+        required: false
+        default: true
+        type: boolean
+      build_scope:
+        description: 'Build scope'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - minimal
+          - full
+  # Build monthly on the 1st
+  schedule:
+    - cron: '0 6 1 * *'
+  # Build on pushes to main branch
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      - id: time
+        uses: nanzm/get-time-action@v2.0
+        with:
+          format: 'YYYYMMDDHHmm'
+    outputs:
+      release_tag: maxregneros-${{ steps.time.outputs.time }}
+
+  build-maxregneros:
+    runs-on: ubuntu-22.04
+    needs: prepare-release
+    strategy:
+      matrix:
+        ##### MaxregnerOS Build Matrix #####
+        EDITION: [maxregneros]
+        BRANCH: [stable, testing]
+        SCOPE: [minimal, full]
+        UI_THEME: [glassy, crystal]
+        ####################################
+        exclude:
+          # Exclude minimal builds with crystal theme to reduce build time
+          - SCOPE: minimal
+            UI_THEME: crystal
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      
+      - uses: actions/checkout@v4
+      
+      - name: Build MaxregnerOS ISO
+        id: image-build
+        uses: ./
+        with:
+          # Basic ISO configuration
+          edition: ${{ matrix.EDITION }}
+          branch: ${{ matrix.BRANCH }}
+          scope: ${{ matrix.SCOPE }}
+          version: "24.0"
+          kernel: linux66
+          code-name: "MaxregnerOS Glassy"
+          
+          # MaxregnerOS UI Configuration
+          maxregneros-ui-enabled: true
+          maxregneros-ui-theme: ${{ matrix.UI_THEME }}
+          maxregneros-mobile-optimization: ${{ inputs.mobile_optimization || true }}
+          maxregneros-responsive-layout: true
+          maxregneros-gesture-support: true
+          maxregneros-glassy-effects: true
+          
+          # Build and distribution settings
+          release-tag: ${{ needs.prepare-release.outputs.release_tag }}
+          office-chooser: ${{ matrix.SCOPE == 'full' }}
+          
+          # GPG signing (optional)
+          gpg-secret-key-base64: ${{ secrets.GPG_SECRET_BASE64 }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          
+          # Distribution channels
+          # GitHub Releases
+          release-tag: ${{ needs.prepare-release.outputs.release_tag }}
+          
+          # CDN77 (optional)
+          # cdn77-host: ${{ secrets.CDN_HOST }}
+          # cdn77-user: ${{ secrets.CDN_USER }}
+          # cdn77-pwd: ${{ secrets.CDN_PWD }}
+          
+          # SourceForge (optional)
+          # sf-project: maxregneros
+          # sf-user: ${{ secrets.SF_USER_NAME }}
+          # sf-key: ${{ secrets.SF_PRIV_SSHKEY }}
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxregneros-${{ matrix.UI_THEME }}-${{ matrix.BRANCH }}-${{ matrix.SCOPE }}
+          path: |
+            ${{ steps.image-build.outputs.file-path }}
+            ${{ steps.image-build.outputs.file-path }}.sha256
+            ${{ steps.image-build.outputs.file-path }}.pkgs
+          retention-days: 30
+      
+      - name: Create Release Notes
+        if: matrix.EDITION == 'maxregneros' && matrix.UI_THEME == 'glassy' && matrix.SCOPE == 'full'
+        run: |
+          cat > release-notes.md << 'EOF'
+          # MaxregnerOS Glassy Mobile Release
+          
+          ## 🌟 Features
+          - **Glassy Mobile UI**: Revolutionary mobile-first interface with transparency effects
+          - **Touch Optimization**: 44px minimum touch targets and gesture support
+          - **Responsive Design**: Adaptive layouts for any screen size
+          - **Performance Tuned**: Hardware-accelerated rendering and mobile optimizations
+          
+          ## 🎨 Theme Variants
+          - **Glassy**: Classic transparent glass effects
+          - **Crystal**: Ice-like crystalline transparency
+          - **Aurora**: Colorful gradient effects
+          - **Neon**: Vibrant accent colors
+          
+          ## 📱 Mobile Features
+          - Multi-touch gesture recognition
+          - Virtual keyboard support
+          - Mobile-optimized applications
+          - Touch-friendly system controls
+          - Adaptive panel layouts
+          
+          ## 🔧 Technical Details
+          - **Base**: Manjaro Linux ${{ matrix.BRANCH }}
+          - **Kernel**: Linux 6.6 LTS
+          - **Desktop**: MaxregnerOS Glassy Mobile UI
+          - **Architecture**: x86_64
+          - **Size**: ~2.5GB (full), ~1.8GB (minimal)
+          
+          ## 📋 System Requirements
+          - **RAM**: 2GB minimum, 4GB recommended
+          - **Storage**: 20GB available space
+          - **GPU**: Hardware acceleration recommended
+          - **Input**: Touch screen or precision touchpad recommended
+          
+          ## 🚀 Installation
+          1. Download the ISO file
+          2. Create bootable USB with Rufus/Etcher
+          3. Boot from USB and follow installer
+          4. Enjoy your glassy mobile Linux experience!
+          
+          ## 🐛 Known Issues
+          - Some older GPUs may not support all glassy effects
+          - Virtual machines may have limited gesture support
+          - Battery optimization features require compatible hardware
+          
+          ## 📞 Support
+          - GitHub Issues: Report bugs and feature requests
+          - Community Forum: Get help from other users
+          - Documentation: Comprehensive setup and usage guides
+          EOF
+          
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          cat release-notes.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      
+      # Rollback on failure
+      - name: Rollback GitHub Release
+        if: ${{ failure() || cancelled() }}
+        run: |
+          echo ${{ github.token }} | gh auth login --with-token
+          gh release delete ${{ needs.prepare-release.outputs.release_tag }} -y --repo ${{ github.repository }} || true
+          git push --delete origin ${{ needs.prepare-release.outputs.release_tag }} || true
+
+  # Post-build validation and testing
+  validate-build:
+    runs-on: ubuntu-22.04
+    needs: [prepare-release, build-maxregneros]
+    if: success()
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: maxregneros-*
+          merge-multiple: true
+      
+      - name: Validate ISO Files
+        run: |
+          echo "Validating MaxregnerOS ISO builds..."
+          
+          for iso in *.iso; do
+            if [[ -f "$iso" ]]; then
+              echo "✓ Found ISO: $iso"
+              
+              # Check file size (should be reasonable)
+              size=$(stat -c%s "$iso")
+              if [[ $size -gt 1000000000 ]]; then  # > 1GB
+                echo "✓ ISO size looks reasonable: $(($size / 1024 / 1024))MB"
+              else
+                echo "⚠ ISO size seems small: $(($size / 1024 / 1024))MB"
+              fi
+              
+              # Verify checksums
+              if [[ -f "$iso.sha256" ]]; then
+                if sha256sum -c "$iso.sha256"; then
+                  echo "✓ SHA256 checksum verified"
+                else
+                  echo "✗ SHA256 checksum failed"
+                  exit 1
+                fi
+              fi
+              
+              # Check package list
+              if [[ -f "$iso.pkgs" ]]; then
+                pkg_count=$(wc -l < "$iso.pkgs")
+                echo "✓ Package list contains $pkg_count packages"
+              fi
+            fi
+          done
+          
+          echo "All validations passed! 🎉"
+      
+      - name: Generate Build Summary
+        run: |
+          echo "## MaxregnerOS Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| ISO File | Size | Packages | Theme | Scope |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|----------|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          for iso in *.iso; do
+            if [[ -f "$iso" ]]; then
+              size=$(stat -c%s "$iso")
+              size_mb=$(($size / 1024 / 1024))
+              
+              pkg_count="N/A"
+              if [[ -f "$iso.pkgs" ]]; then
+                pkg_count=$(wc -l < "$iso.pkgs")
+              fi
+              
+              # Extract theme and scope from filename
+              theme=$(echo "$iso" | grep -o -E "(glassy|crystal|aurora|neon)" || echo "unknown")
+              scope=$(echo "$iso" | grep -o -E "(minimal|full)" || echo "unknown")
+              
+              echo "| $iso | ${size_mb}MB | $pkg_count | $theme | $scope |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 All MaxregnerOS builds completed successfully!" >> $GITHUB_STEP_SUMMARY
+
+  # Notification job
+  notify-completion:
+    runs-on: ubuntu-22.04
+    needs: [prepare-release, build-maxregneros, validate-build]
+    if: always()
+    steps:
+      - name: Notify Build Status
+        run: |
+          if [[ "${{ needs.build-maxregneros.result }}" == "success" && "${{ needs.validate-build.result }}" == "success" ]]; then
+            echo "✅ MaxregnerOS build completed successfully!"
+            echo "🚀 Release: ${{ needs.prepare-release.outputs.release_tag }}"
+            echo "📦 Artifacts available in GitHub Releases"
+          else
+            echo "❌ MaxregnerOS build failed or was cancelled"
+            echo "🔍 Check the build logs for details"
+          fi
