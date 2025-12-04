@@ -352,9 +352,7 @@ runs:
           
           # Create mobile optimization script
           sudo mkdir -p /usr/share/maxregneros-ui
-          echo '#!/bin/bash' | sudo tee /usr/share/maxregneros-ui/mobile-setup.sh > /dev/null
-          echo 'echo "MaxregnerOS glassy mobile UI setup completed!"' | sudo tee -a /usr/share/maxregneros-ui/mobile-setup.sh > /dev/null
-          
+          sudo cp scripts/mobile-setup.sh /usr/share/maxregneros-ui/
           sudo chmod +x /usr/share/maxregneros-ui/mobile-setup.sh
           
           echo "## MaxregnerOS UI configuration created successfully"
