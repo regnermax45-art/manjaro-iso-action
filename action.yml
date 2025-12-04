@@ -283,85 +283,75 @@ runs:
           sudo mkdir -p /usr/share/maxregneros-ui/configs
           
           # Create main UI configuration
-          cat << EOF | sudo tee /etc/maxregneros-ui/config.conf > /dev/null
-# MaxregnerOS UI Configuration
-UI_THEME=${MAXREGNEROS_UI_THEME}
-MOBILE_OPTIMIZATION=${MAXREGNEROS_MOBILE_OPTIMIZATION}
-RESPONSIVE_LAYOUT=${MAXREGNEROS_RESPONSIVE_LAYOUT}
-GESTURE_SUPPORT=${MAXREGNEROS_GESTURE_SUPPORT}
-GLASSY_EFFECTS=${MAXREGNEROS_GLASSY_EFFECTS}
-TRANSPARENCY=true
-BLUR_EFFECTS=true
-CORNER_RADIUS=12
-SHADOW_DEPTH=4
-ANIMATION_SPEED=fast
-GLASSY_OPACITY=0.85
-BLUR_RADIUS=15
-FADE_DURATION=300
-EOF
+          printf '# MaxregnerOS UI Configuration\nUI_THEME=%s\nMOBILE_OPTIMIZATION=%s\nRESPONSIVE_LAYOUT=%s\nGESTURE_SUPPORT=%s\nGLASSY_EFFECTS=%s\nTRANSPARENCY=true\nBLUR_EFFECTS=true\nCORNER_RADIUS=12\nSHADOW_DEPTH=4\nANIMATION_SPEED=fast\nGLASSY_OPACITY=0.85\nBLUR_RADIUS=15\nFADE_DURATION=300\n' \
+            "${MAXREGNEROS_UI_THEME}" \
+            "${MAXREGNEROS_MOBILE_OPTIMIZATION}" \
+            "${MAXREGNEROS_RESPONSIVE_LAYOUT}" \
+            "${MAXREGNEROS_GESTURE_SUPPORT}" \
+            "${MAXREGNEROS_GLASSY_EFFECTS}" | sudo tee /etc/maxregneros-ui/config.conf > /dev/null
           
           # Create glassy theme configuration
-          cat << EOF | sudo tee /usr/share/maxregneros-ui/themes/glassy.conf > /dev/null
-# Glassy Theme Configuration
-[Theme]
-name=MaxregnerOS Glassy
-description=Revolutionary glassy mobile-first UI theme
-version=1.0.0
-
-[Visual_Effects]
-transparency=true
-blur_effects=true
-corner_radius=12
-shadow_depth=4
-glassy_opacity=0.85
-blur_radius=15
-fade_duration=300
-
-[Colors]
-primary=#2196F3
-secondary=#03DAC6
-surface=rgba(255,255,255,0.85)
-background=rgba(0,0,0,0.1)
-on_surface=#000000
-on_background=#FFFFFF
-
-[Mobile]
-touch_interface=true
-minimum_touch_target=44px
-gesture_navigation=true
-adaptive_layouts=true
-EOF
+          {
+            echo "# Glassy Theme Configuration"
+            echo "[Theme]"
+            echo "name=MaxregnerOS Glassy"
+            echo "description=Revolutionary glassy mobile-first UI theme"
+            echo "version=1.0.0"
+            echo ""
+            echo "[Visual_Effects]"
+            echo "transparency=true"
+            echo "blur_effects=true"
+            echo "corner_radius=12"
+            echo "shadow_depth=4"
+            echo "glassy_opacity=0.85"
+            echo "blur_radius=15"
+            echo "fade_duration=300"
+            echo ""
+            echo "[Colors]"
+            echo "primary=#2196F3"
+            echo "secondary=#03DAC6"
+            echo "surface=rgba(255,255,255,0.85)"
+            echo "background=rgba(0,0,0,0.1)"
+            echo "on_surface=#000000"
+            echo "on_background=#FFFFFF"
+            echo ""
+            echo "[Mobile]"
+            echo "touch_interface=true"
+            echo "minimum_touch_target=44px"
+            echo "gesture_navigation=true"
+            echo "adaptive_layouts=true"
+          } | sudo tee /usr/share/maxregneros-ui/themes/glassy.conf > /dev/null
           
           # Create gesture configuration
-          cat << EOF | sudo tee /usr/share/maxregneros-ui/configs/gestures.conf > /dev/null
-# MaxregnerOS Gesture Configuration
-[Global_Settings]
-gesture_engine=touchegg
-sensitivity=medium
-animation_speed=fast
-haptic_feedback=true
-
-[Three_Finger_Gestures]
-swipe_up=show_desktop
-swipe_down=show_desktop
-swipe_left=next_workspace
-swipe_right=previous_workspace
-
-[Four_Finger_Gestures]
-swipe_up=show_activities
-swipe_down=show_applications
-swipe_left=switch_application_next
-swipe_right=switch_application_previous
-
-[Two_Finger_Gestures]
-pinch_in=zoom_out
-pinch_out=zoom_in
-scroll_up=scroll_up
-scroll_down=scroll_down
-EOF
+          {
+            echo "# MaxregnerOS Gesture Configuration"
+            echo "[Global_Settings]"
+            echo "gesture_engine=touchegg"
+            echo "sensitivity=medium"
+            echo "animation_speed=fast"
+            echo "haptic_feedback=true"
+            echo ""
+            echo "[Three_Finger_Gestures]"
+            echo "swipe_up=show_desktop"
+            echo "swipe_down=show_desktop"
+            echo "swipe_left=next_workspace"
+            echo "swipe_right=previous_workspace"
+            echo ""
+            echo "[Four_Finger_Gestures]"
+            echo "swipe_up=show_activities"
+            echo "swipe_down=show_applications"
+            echo "swipe_left=switch_application_next"
+            echo "swipe_right=switch_application_previous"
+            echo ""
+            echo "[Two_Finger_Gestures]"
+            echo "pinch_in=zoom_out"
+            echo "pinch_out=zoom_in"
+            echo "scroll_up=scroll_up"
+            echo "scroll_down=scroll_down"
+          } | sudo tee /usr/share/maxregneros-ui/configs/gestures.conf > /dev/null
           
           # Create mobile optimization script
-          cat << 'EOF' | sudo tee /usr/share/maxregneros-ui/mobile-setup.sh > /dev/null
+          sudo tee /usr/share/maxregneros-ui/mobile-setup.sh > /dev/null << 'EOF'
 #!/bin/bash
 # MaxregnerOS Mobile UI Setup Script
 
@@ -395,7 +385,7 @@ done
 
 # Configure GTK theme for glassy effects
 mkdir -p ~/.config/gtk-3.0
-cat > ~/.config/gtk-3.0/settings.ini << 'GTKEOF'
+tee ~/.config/gtk-3.0/settings.ini > /dev/null << 'GTKEOF'
 [Settings]
 gtk-theme-name=Adwaita
 gtk-icon-theme-name=Papirus
@@ -416,7 +406,7 @@ GTKEOF
 
 # Configure Picom for glassy effects
 mkdir -p ~/.config/picom
-cat > ~/.config/picom/picom.conf << 'PICOMEOF'
+tee ~/.config/picom/picom.conf > /dev/null << 'PICOMEOF'
 # MaxregnerOS Glassy Effects Configuration
 backend = "glx";
 glx-no-stencil = true;
@@ -460,7 +450,7 @@ PICOMEOF
 
 # Configure Touchegg for gestures
 mkdir -p ~/.config/touchegg
-cat > ~/.config/touchegg/touchegg.conf << 'TOUCHEOF'
+tee ~/.config/touchegg/touchegg.conf > /dev/null << 'TOUCHEOF'
 <touchegg>
   <settings>
     <property name="animation_delay">150</property>
