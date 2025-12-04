@@ -52,7 +52,7 @@ jobs:
           sf-key: ${{ secrets.SF_PRIV_SSHKEY }}
           # custom-repo: 
           office-chooser: true
-          build-mirror: ${{ secrets.BUILD_MIRROR }}
+          build-mirror: ${{ secrets.BUILD_MIRROR || 'https://mirror.easyname.at/manjaro' }}
           # osdn is absurdly slow sometimes
           # osdn-project: manjaro
           # osdn-user: ${{ secrets.OSDN_USER_NAME }}
