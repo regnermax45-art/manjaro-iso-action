@@ -26,7 +26,7 @@ jobs:
         ##### EDIT ME #####
         EDITION: [xfce]
         BRANCH: [stable]
-        SCOPE: [minimal]
+        SCOPE: [full]
         ###################
     steps:
       - uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1
@@ -52,7 +52,14 @@ jobs:
           sf-key: ${{ secrets.SF_PRIV_SSHKEY }}
           # custom-repo: 
           office-chooser: true
-          build-mirror: ${{ secrets.BUILD_MIRROR }}
+          build-mirror: ${{ secrets.BUILD_MIRROR || 'https://mirror.easyname.at/manjaro' }}
+          # MaxregnerOS UI Configuration - ENABLED FOR TESTING
+          maxregneros-ui-enabled: true
+          maxregneros-ui-theme: glassy
+          maxregneros-mobile-optimization: true
+          maxregneros-responsive-layout: true
+          maxregneros-gesture-support: true
+          maxregneros-glassy-effects: true
           # osdn is absurdly slow sometimes
           # osdn-project: manjaro
           # osdn-user: ${{ secrets.OSDN_USER_NAME }}

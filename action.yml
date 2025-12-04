@@ -83,6 +83,30 @@ inputs:
   s3-cfg:
     description: 'S3 config'
     required: false
+  maxregneros-ui-enabled:
+    description: 'Enable maxregnerOS glassy mobile UI features throughout the system'
+    required: false
+    default: "false"
+  maxregneros-ui-theme:
+    description: 'MaxregnerOS UI theme variant (glassy, crystal, aurora, neon)'
+    required: false
+    default: "glassy"
+  maxregneros-mobile-optimization:
+    description: 'Enable mobile-first optimizations and touch interfaces'
+    required: false
+    default: "true"
+  maxregneros-responsive-layout:
+    description: 'Enable responsive layout system for different screen sizes'
+    required: false
+    default: "true"
+  maxregneros-gesture-support:
+    description: 'Enable advanced gesture recognition and touch navigation'
+    required: false
+    default: "true"
+  maxregneros-glassy-effects:
+    description: 'Enable glassy transparency and visual effects throughout UI'
+    required: false
+    default: "true"
 
 outputs:
   file-path:
@@ -240,6 +264,259 @@ runs:
         sudo rm -rf /opt/ghc
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+    - id: maxregneros-ui-setup
+      shell: bash
+      env:
+        MAXREGNEROS_UI_ENABLED: ${{ inputs.maxregneros-ui-enabled }}
+        MAXREGNEROS_UI_THEME: ${{ inputs.maxregneros-ui-theme }}
+        MAXREGNEROS_MOBILE_OPTIMIZATION: ${{ inputs.maxregneros-mobile-optimization }}
+        MAXREGNEROS_RESPONSIVE_LAYOUT: ${{ inputs.maxregneros-responsive-layout }}
+        MAXREGNEROS_GESTURE_SUPPORT: ${{ inputs.maxregneros-gesture-support }}
+        MAXREGNEROS_GLASSY_EFFECTS: ${{ inputs.maxregneros-glassy-effects }}
+      run: |
+        if [ "$MAXREGNEROS_UI_ENABLED" == "true" ]; then
+          echo "## Setting up MaxregnerOS UI glassy mobile features"
+          
+          # Create MaxregnerOS UI configuration directory
+          sudo mkdir -p /etc/maxregneros-ui
+          sudo mkdir -p /usr/share/maxregneros-ui/themes
+          sudo mkdir -p /usr/share/maxregneros-ui/configs
+          
+          # Create main UI configuration
+          cat << EOF | sudo tee /etc/maxregneros-ui/config.conf > /dev/null
+# MaxregnerOS UI Configuration
+UI_THEME=${MAXREGNEROS_UI_THEME}
+MOBILE_OPTIMIZATION=${MAXREGNEROS_MOBILE_OPTIMIZATION}
+RESPONSIVE_LAYOUT=${MAXREGNEROS_RESPONSIVE_LAYOUT}
+GESTURE_SUPPORT=${MAXREGNEROS_GESTURE_SUPPORT}
+GLASSY_EFFECTS=${MAXREGNEROS_GLASSY_EFFECTS}
+TRANSPARENCY=true
+BLUR_EFFECTS=true
+CORNER_RADIUS=12
+SHADOW_DEPTH=4
+ANIMATION_SPEED=fast
+GLASSY_OPACITY=0.85
+BLUR_RADIUS=15
+FADE_DURATION=300
+EOF
+          
+          # Create glassy theme configuration
+          cat << EOF | sudo tee /usr/share/maxregneros-ui/themes/glassy.conf > /dev/null
+# Glassy Theme Configuration
+[Theme]
+name=MaxregnerOS Glassy
+description=Revolutionary glassy mobile-first UI theme
+version=1.0.0
+
+[Visual_Effects]
+transparency=true
+blur_effects=true
+corner_radius=12
+shadow_depth=4
+glassy_opacity=0.85
+blur_radius=15
+fade_duration=300
+
+[Colors]
+primary=#2196F3
+secondary=#03DAC6
+surface=rgba(255,255,255,0.85)
+background=rgba(0,0,0,0.1)
+on_surface=#000000
+on_background=#FFFFFF
+
+[Mobile]
+touch_interface=true
+minimum_touch_target=44px
+gesture_navigation=true
+adaptive_layouts=true
+EOF
+          
+          # Create gesture configuration
+          cat << EOF | sudo tee /usr/share/maxregneros-ui/configs/gestures.conf > /dev/null
+# MaxregnerOS Gesture Configuration
+[Global_Settings]
+gesture_engine=touchegg
+sensitivity=medium
+animation_speed=fast
+haptic_feedback=true
+
+[Three_Finger_Gestures]
+swipe_up=show_desktop
+swipe_down=show_desktop
+swipe_left=next_workspace
+swipe_right=previous_workspace
+
+[Four_Finger_Gestures]
+swipe_up=show_activities
+swipe_down=show_applications
+swipe_left=switch_application_next
+swipe_right=switch_application_previous
+
+[Two_Finger_Gestures]
+pinch_in=zoom_out
+pinch_out=zoom_in
+scroll_up=scroll_up
+scroll_down=scroll_down
+EOF
+          
+          # Create mobile optimization script
+          cat << 'EOF' | sudo tee /usr/share/maxregneros-ui/mobile-setup.sh > /dev/null
+#!/bin/bash
+# MaxregnerOS Mobile UI Setup Script
+
+echo "Setting up MaxregnerOS glassy mobile UI..."
+
+# Install required packages for mobile UI
+PACKAGES=(
+    "picom"
+    "touchegg" 
+    "gtk3"
+    "gtk4"
+    "qt5-base"
+    "qt6-base"
+    "papirus-icon-theme"
+    "firefox"
+    "nautilus"
+    "gnome-terminal"
+    "gedit"
+    "network-manager-applet"
+    "blueman"
+)
+
+for pkg in "${PACKAGES[@]}"; do
+    if pacman -Qi "$pkg" &>/dev/null; then
+        echo "✓ $pkg already installed"
+    else
+        echo "Installing $pkg..."
+        pacman -S --noconfirm "$pkg" 2>/dev/null || echo "⚠ Could not install $pkg"
+    fi
+done
+
+# Configure GTK theme for glassy effects
+mkdir -p ~/.config/gtk-3.0
+cat > ~/.config/gtk-3.0/settings.ini << 'GTKEOF'
+[Settings]
+gtk-theme-name=Adwaita
+gtk-icon-theme-name=Papirus
+gtk-font-name=Inter 11
+gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-size=24
+gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+gtk-button-images=1
+gtk-menu-images=1
+gtk-enable-event-sounds=1
+gtk-enable-input-feedback-sounds=1
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle=hintfull
+gtk-xft-rgba=rgb
+GTKEOF
+
+# Configure Picom for glassy effects
+mkdir -p ~/.config/picom
+cat > ~/.config/picom/picom.conf << 'PICOMEOF'
+# MaxregnerOS Glassy Effects Configuration
+backend = "glx";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+glx-no-rebind-pixmap = true;
+
+# Transparency and blur
+blur-background = true;
+blur-method = "dual_kawase";
+blur-strength = 15;
+blur-background-exclude = [
+    "window_type = 'dock'",
+    "window_type = 'desktop'"
+];
+
+# Opacity
+active-opacity = 0.95;
+inactive-opacity = 0.85;
+frame-opacity = 0.85;
+
+# Fading
+fading = true;
+fade-delta = 300;
+fade-in-step = 0.03;
+fade-out-step = 0.03;
+
+# Shadows
+shadow = true;
+shadow-radius = 12;
+shadow-offset-x = -7;
+shadow-offset-y = -7;
+shadow-opacity = 0.7;
+
+# Corner radius
+corner-radius = 12;
+rounded-corners-exclude = [
+    "window_type = 'dock'",
+    "window_type = 'desktop'"
+];
+PICOMEOF
+
+# Configure Touchegg for gestures
+mkdir -p ~/.config/touchegg
+cat > ~/.config/touchegg/touchegg.conf << 'TOUCHEOF'
+<touchegg>
+  <settings>
+    <property name="animation_delay">150</property>
+    <property name="action_execute_threshold">20</property>
+    <property name="color">auto</property>
+    <property name="borderColor">auto</property>
+  </settings>
+  
+  <application name="All">
+    <gesture type="SWIPE" fingers="3" direction="UP">
+      <action type="SHOW_DESKTOP">
+        <animate>true</animate>
+      </action>
+    </gesture>
+    
+    <gesture type="SWIPE" fingers="3" direction="DOWN">
+      <action type="SHOW_DESKTOP">
+        <animate>true</animate>
+      </action>
+    </gesture>
+    
+    <gesture type="SWIPE" fingers="3" direction="LEFT">
+      <action type="CHANGE_DESKTOP">
+        <direction>next</direction>
+        <animate>true</animate>
+      </action>
+    </gesture>
+    
+    <gesture type="SWIPE" fingers="3" direction="RIGHT">
+      <action type="CHANGE_DESKTOP">
+        <direction>previous</direction>
+        <animate>true</animate>
+      </action>
+    </gesture>
+    
+    <gesture type="SWIPE" fingers="4" direction="UP">
+      <action type="RUN_COMMAND">
+        <command>gnome-control-center</command>
+      </action>
+    </gesture>
+  </application>
+</touchegg>
+TOUCHEOF
+
+echo "MaxregnerOS glassy mobile UI setup completed!"
+EOF
+          
+          sudo chmod +x /usr/share/maxregneros-ui/mobile-setup.sh
+          
+          echo "## MaxregnerOS UI configuration created successfully"
+          echo "Theme: ${MAXREGNEROS_UI_THEME}"
+          echo "Mobile Optimization: ${MAXREGNEROS_MOBILE_OPTIMIZATION}"
+          echo "Glassy Effects: ${MAXREGNEROS_GLASSY_EFFECTS}"
+        else
+          echo "## MaxregnerOS UI features disabled, skipping setup"
+        fi
     - id: image-build
       shell: bash
       env:
