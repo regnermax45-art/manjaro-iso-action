@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         ##### EDIT ME #####
-        edition: [xfce, maxregneros]
+        edition: [xfce]
         branch: [stable]
         scope: [minimal, full]
         ###################
@@ -53,13 +53,8 @@ jobs:
           # custom-repo: 
           office-chooser: true
           build-mirror: ${{ secrets.BUILD_MIRROR }}
-          # MaxregnerOS UI Configuration
-          maxregneros-ui-enabled: ${{ matrix.edition == 'maxregneros' && 'true' || 'false' }}
-          maxregneros-ui-theme: glassy
-          maxregneros-mobile-optimization: true
-          maxregneros-responsive-layout: true
-          maxregneros-gesture-support: true
-          maxregneros-glassy-effects: true
+          # MaxregnerOS UI Configuration (disabled for testing)
+          maxregneros-ui-enabled: false
           # osdn is absurdly slow sometimes
           # osdn-project: manjaro
           # osdn-user: ${{ secrets.OSDN_USER_NAME }}
