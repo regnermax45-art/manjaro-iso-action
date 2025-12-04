@@ -24,9 +24,9 @@ jobs:
     strategy:
       matrix:
         ##### EDIT ME #####
-        EDITION: [xfce, maxregneros]
-        BRANCH: [stable]
-        SCOPE: [minimal, full]
+        edition: [xfce, maxregneros]
+        branch: [stable]
+        scope: [minimal, full]
         ###################
     steps:
       - uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1

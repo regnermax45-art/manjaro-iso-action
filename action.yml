@@ -514,7 +514,7 @@ runs:
         # Configure mobile gestures
         mkdir -p /etc/skel/.config/touchegg
         cat > /etc/skel/.config/touchegg/touchegg.conf <<TEOF
-        <touchégg>
+        <touchegg>
           <settings>
             <property name="animation_delay">150</property>
             <property name="action_execute_threshold">20</property>
@@ -557,7 +557,7 @@ runs:
               </action>
             </gesture>
           </application>
-        </touchégg>
+        </touchegg>
         TEOF
         
         # Configure compositor for glassy effects
