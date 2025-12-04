@@ -24,9 +24,9 @@ jobs:
     strategy:
       matrix:
         ##### EDIT ME #####
-        EDITION: [xfce]
+        EDITION: [xfce, maxregneros]
         BRANCH: [stable]
-        SCOPE: [minimal]
+        SCOPE: [minimal, full]
         ###################
     steps:
       - uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1
@@ -53,6 +53,13 @@ jobs:
           # custom-repo: 
           office-chooser: true
           build-mirror: ${{ secrets.BUILD_MIRROR }}
+          # MaxregnerOS UI Configuration
+          maxregneros-ui-enabled: ${{ matrix.edition == 'maxregneros' && 'true' || 'false' }}
+          maxregneros-ui-theme: glassy
+          maxregneros-mobile-optimization: true
+          maxregneros-responsive-layout: true
+          maxregneros-gesture-support: true
+          maxregneros-glassy-effects: true
           # osdn is absurdly slow sometimes
           # osdn-project: manjaro
           # osdn-user: ${{ secrets.OSDN_USER_NAME }}
